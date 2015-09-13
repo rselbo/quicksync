@@ -1,0 +1,6 @@
+*.tlog
+*ui_*
+*.sdf
+*.ipch
+*.opensdf
+*moc_*

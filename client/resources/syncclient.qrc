@@ -1,0 +1,8 @@
+<!DOCTYPE RCC><RCC version="1.0">
+    <qresource>
+        <file>qs.png</file>
+        <file>qssync.png</file>
+        <file>qsdis.png</file>
+        <file>qsnw.png</file>
+    </qresource>
+</RCC>

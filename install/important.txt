@@ -1,0 +1,15 @@
+Date 05 July 2007
+New Features:
+
+* Improved ignore rules. You can now define regex rules to include / exclude files and flag them as binary or executable.
+
+* Filewatching. When pressing the Sync button we now start monitoring the source directory for changes. Files are synced to the server automaticly when this is enabled.
+
+* Removed the Most Recently Used file list that was used to speed up syncing of the most frequently edited files. This is considered a deprecated feature since we do file watching now.
+
+* Improved the Copied files dialog so it shows the status of the 50 last synced files in this run.
+
+** IMPORTANT**
+
+Merge the ignore.reg file into your local registry. It contains the latest ignore rules so you wont have to make them. It is located right beside the executable in W:\Users\roars\quicksync
+This message will not be shown again, but you can read it at W:\Users\roars\quicksync\important.txt
