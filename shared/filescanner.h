@@ -22,12 +22,7 @@ public:
   virtual bool scanStep();
 private:
   void scanDir(const QString& path, QSharedPointer<SyncRules> rules);
-#if !defined( USE_QDIR)
   QString fRootDir;
-  HANDLE fFile;
-#else
-  QDir fScanner;
-#endif
   QList<DirRules> fUnscannedDirs;
 };
 
