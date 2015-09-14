@@ -27,7 +27,7 @@
      </property>
      <widget class="QWidget" name="tabBranches">
       <attribute name="title">
-       <string>Brances</string>
+       <string>Branches</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_5">
        <item>

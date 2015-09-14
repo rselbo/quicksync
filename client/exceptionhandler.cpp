@@ -38,6 +38,9 @@ LONG WINAPI ExceptionHandler::process( PEXCEPTION_POINTERS pInfo )
   cDumpName = joinPath(cDumpPath, cDumpName);
   cDumpName.replace('/', '\\');
   wchar_t* dumpNameW = static_cast<wchar_t*>(alloca((cDumpName.length() + 1) * sizeof(wchar_t)));
+  cDumpName.toWCharArray(dumpNameW);
+  dumpNameW[cDumpName.length()] = 0;
+
   //Try to create the the minidump in the appdata folder
   hFile = CreateFile(dumpNameW, GENERIC_WRITE, 0, 0, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
 

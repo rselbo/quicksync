@@ -47,6 +47,7 @@ void FileScanner::scanDir(const QString& path, QSharedPointer<SyncRules> rules)
   WIN32_FIND_DATA fileData;
   wchar_t* searchW = static_cast<wchar_t*>(alloca((search.length() + 1) * sizeof(wchar_t)));
   search.toWCharArray(searchW);
+  searchW[search.length()] = 0;
   HANDLE dirList = FindFirstFile(searchW, &fileData);
 
 #define WRITE_DEBUG_LOG 0
@@ -153,7 +154,7 @@ void FileScanner::scanDir(const QString &path)
   fDirNumber++;
   QDir dir(path);
 
-  QStringList dirList = dir.entryList(QDir::AllDirs|QDir::NoDotAndDotDot|QDir::Hidden|QDir::System);
+  QStringList dirList = dir.entryList(QDir::AllEntries|QDir::NoDotAndDotDot);
   if(!dirList.isEmpty())
   {
     fDirCount += dirList.size();
