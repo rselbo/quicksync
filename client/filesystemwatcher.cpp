@@ -17,6 +17,8 @@ void FileSystemWatcher::run()
   fThreadRunning = true;
   //Open a handle to the directory
   wchar_t* dirToWatchW = static_cast<wchar_t*>(alloca((fDirToWatch.length() + 1) * sizeof(wchar_t)));
+  fDirToWatch.toWCharArray(dirToWatchW);
+  dirToWatchW[fDirToWatch.length()] = 0;
   HANDLE hDir = CreateFile(dirToWatchW,
     FILE_LIST_DIRECTORY, 
     FILE_SHARE_READ | FILE_SHARE_WRITE ,//| FILE_SHARE_DELETE, <-- removing FILE_SHARE_DELETE prevents the user or someone else from renaming or deleting the watched directory. This is a good thing to prevent.

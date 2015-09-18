@@ -48,85 +48,71 @@ void RuleVisualizerWorker::run()
 void RuleVisualizerWorker::ScanDir(const QString& path, QSharedPointer<SyncRules> rules, bool excluded, int excludeRule)
 {
   QString search = joinPath(m_SourcePath, path);
-  search = joinPath(search, "*");
-  wchar_t* searchW = static_cast<wchar_t*>(alloca((search.length() + 1) * sizeof(wchar_t)));
-  WIN32_FIND_DATA fileData;
-  HANDLE dirList = FindFirstFile(searchW, &fileData);
+  QDir searchDir(search);
 
-  if(dirList != INVALID_HANDLE_VALUE) 
+  QFileInfoList fileList = searchDir.entryInfoList(QDir::AllEntries | QDir::NoDotAndDotDot);
+  for (auto info : fileList)
   {
-    do
+    if (info.isDir())
     {
-      QString fileName = QString::fromWCharArray(fileData.cFileName);
-      if ((fileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0)
+      QString dirStr = joinPath(path, info.fileName());
+      if (excluded)
       {
-        if(fileName.compare(".") != 0 && fileName.compare("..") != 0)
-        {
-          QString dirStr = joinPath(path, fileName);
-          if(excluded)
-          {
-            //Excluded by previous rule, keep scanning with the exclude flag and rule the same as before
-            AddFile(dirStr, 0, excluded, rules, excludeRule, true);
-            ScanDir(dirStr, rules, excluded, excludeRule);
-          }
-          else
-          {
-            SyncRuleFlags_e flags;
-            if(rules->CheckFile(dirStr.toLower(), flags, excludeRule))
-            {
-              //We only read new rules in folders that have not already been excluded
-              QString rulePath = joinPath(m_SourcePath, dirStr, "syncrules.xml");
-              if(QFile::exists(rulePath))
-              {
-                QSharedPointer<SyncRules> loadRules(new SyncRules);
-                if(loadRules->loadXmlRules(rulePath))
-                {
-                  m_RuleLocations.push_back(joinPath(dirStr, "syncrules.xml"));
-                  rules = loadRules;
-                }
-              }
-
-              AddFile(dirStr, 0, false, rules, excludeRule, true);
-              ScanDir(dirStr, rules, false, excludeRule);
-            }
-            else
-            {
-              AddFile(dirStr, 0, true, rules, excludeRule, true);
-              ScanDir(dirStr, rules, true, excludeRule);
-            }
-          }
-        }
+        //Excluded by previous rule, keep scanning with the exclude flag and rule the same as before
+        AddFile(dirStr, 0, excluded, rules, excludeRule, true);
+        ScanDir(dirStr, rules, excluded, excludeRule);
       }
       else
       {
-        QString fileStr = joinPath(path, fileName);
-        if(fileStr.endsWith("syncrules.xml"))
-          continue;
-        quint64 fileSize = static_cast<quint64>(fileData.nFileSizeHigh) << 32 | fileData.nFileSizeLow;
-        if(excluded)
+        SyncRuleFlags_e flags;
+        if (rules->CheckFile(dirStr.toLower(), flags, excludeRule))
         {
-          AddFile(fileStr, fileSize, true, rules, excludeRule, false);
+          //We only read new rules in folders that have not already been excluded
+          QString rulePath = joinPath(m_SourcePath, dirStr, "syncrules.xml");
+          if (QFile::exists(rulePath))
+          {
+            QSharedPointer<SyncRules> loadRules(new SyncRules);
+            if (loadRules->loadXmlRules(rulePath))
+            {
+              m_RuleLocations.push_back(joinPath(dirStr, "syncrules.xml"));
+              rules = loadRules;
+            }
+          }
+
+          AddFile(dirStr, 0, false, rules, excludeRule, true);
+          ScanDir(dirStr, rules, false, excludeRule);
         }
         else
         {
-          SyncRuleFlags_e flags;
-          if(rules->CheckFile(fileStr.toLower(), flags, excludeRule))
-          {
-            AddFile(fileStr, fileSize, false, rules, excludeRule, false);
-          }
-          else
-          {
-            AddFile(fileStr, fileSize, true, rules, excludeRule, false);
-          }
+          AddFile(dirStr, 0, true, rules, excludeRule, true);
+          ScanDir(dirStr, rules, true, excludeRule);
         }
       }
-    }while(FindNextFile(dirList, &fileData) && !m_Stop);
-    FindClose(dirList);
-  }
-  else
-  {
-    qCritical() << "[FileScanner] ERROR cant scan dir: " << search;
-  }
+    }
+    else
+    {
+      QString fileStr = joinPath(path, info.fileName());
+      if (fileStr.endsWith("syncrules.xml"))
+        continue;
+
+      if (excluded)
+      {
+        AddFile(fileStr, info.size(), true, rules, excludeRule, false);
+      }
+      else
+      {
+        SyncRuleFlags_e flags;
+        if (rules->CheckFile(fileStr.toLower(), flags, excludeRule))
+        {
+          AddFile(fileStr, info.size(), false, rules, excludeRule, false);
+        }
+        else
+        {
+          AddFile(fileStr, info.size(), true, rules, excludeRule, false);
+        }
+      }
+    }
+  } 
 }
 
 void RuleVisualizerWorker::AddFile(const QString& file, quint64 size, bool excluded, QSharedPointer<SyncRules> rules, int ruleIndex, bool dir)

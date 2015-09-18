@@ -138,11 +138,11 @@ QString GetDataDir()
 {
   QString dirString;
 #ifdef WINDOWS
-  quint16 aBuf16[ MAX_PATH ]; 
+  wchar_t aBuf16[ MAX_PATH ]; 
 
-  if( SHGetFolderPathW( NULL, CSIDL_LOCAL_APPDATA, NULL, SHGFP_TYPE_CURRENT, ( WCHAR* )aBuf16 ) == S_OK ) 
+  if (SHGetKnownFolderPath(FOLDERID_LocalAppData, 0, nullptr, reinterpret_cast<PWSTR*>( &aBuf16 )) == S_OK)
   { 
-    dirString = QString::fromUtf16(aBuf16);
+    dirString = QString::fromWCharArray(aBuf16);
     dirString = dirString.replace('\\', '/') + "/quicksync/";
     QDir dir(dirString);
     if(!dir.exists())
@@ -150,7 +150,8 @@ QString GetDataDir()
       dir.mkpath(dirString);
     }
   } 
-
+#else
+  dirString = QDir::homePath() + "/.quicksync";
 #endif
   return dirString;
 }
