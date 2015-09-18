@@ -177,6 +177,9 @@
     <ClCompile Include="GeneratedFiles\Release\moc_remoteobjectconnection.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
+    <ClCompile Include="..\xmlsettings.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="..\clientapp.h">
@@ -282,6 +285,9 @@
     </ClInclude>
     <ClInclude Include="..\..\shared\filescanner.h">
       <Filter>Shared Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\xmlsettings.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -77,3 +77,5 @@
 
 #pragma warning(pop)
 #endif
+
+extern const QString EmptyQString;

@@ -190,6 +190,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">PreCompile.h</PrecompiledHeaderFile>
     </ClCompile>
+    <ClCompile Include="..\xmlsettings.cpp" />
     <ClCompile Include="GeneratedFiles\Debug\moc_clientapp.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
@@ -408,6 +409,7 @@
     <ClInclude Include="..\PreCompile.h" />
     <ClInclude Include="..\syncrules.h" />
     <ClInclude Include="..\syncruleviewmodel.h" />
+    <ClInclude Include="..\xmlsettings.h" />
     <ClInclude Include="GeneratedFiles\ui_branching.h" />
     <ClInclude Include="GeneratedFiles\ui_copiedfilesdialog.h" />
     <ClInclude Include="GeneratedFiles\ui_patcher.h">
