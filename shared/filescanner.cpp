@@ -3,9 +3,10 @@
 #include "utils.h"
 #include "syncrules.h"
 
-FileScanner::FileScanner(const QString& rootPath, QSharedPointer<SyncRules> rules) :
-ScannerBase(rootPath, rules)
-, fRootDir(rootPath)
+FileScanner::FileScanner(const QString& rootPath, QSharedPointer<SyncRules> rules)
+  : ScannerBase(rootPath, rules)
+  , m_RootDir(rootPath)
+  , m_WriteLog(false)
 {
   QString branchRule(joinPath(rootPath, "syncrules.xml"));
   if (QFile::exists(branchRule))
@@ -18,16 +19,16 @@ ScannerBase(rootPath, rules)
     }
   }
 
-  fUnscannedDirs.push_back(DirRules(".", rules));
+  m_UnscannedDirs.push_back(DirRules(".", rules));
   fDirCount++;
 }
 
 bool FileScanner::scanStep()
 {
-  if (!fUnscannedDirs.isEmpty())
+  if (!m_UnscannedDirs.isEmpty())
   {
-    DirRules dir = fUnscannedDirs.front();
-    fUnscannedDirs.pop_front();
+    DirRules dir = m_UnscannedDirs.front();
+    m_UnscannedDirs.pop_front();
     scanDir(dir.m_Path, dir.m_Rules);
     return true;
   }
@@ -37,18 +38,18 @@ bool FileScanner::scanStep()
 void FileScanner::scanDir(const QString& path, QSharedPointer<SyncRules> rules)
 {
   fDirNumber++;
-  QString search = joinPath(fRootDir, path);
+  QString search = joinPath(m_RootDir, path);
   QDir searchDir(search);
   QFileInfoList dirList = searchDir.entryInfoList(QDir::AllEntries | QDir::NoDotAndDotDot);
 
+  QFile tmp(joinPath(GetDataDir(), "filescanner.log"));
+  QTextStream stream(&tmp);
+  if (m_WriteLog)
+  {
+    tmp.open(QIODevice::ReadWrite | QIODevice::Append);
+  }
   for (auto info : dirList)
   {
-#define WRITE_DEBUG_LOG 0
-#if WRITE_DEBUG_LOG == 1
-    QFile tmp("filelist");
-    tmp.open(QIODevice::ReadWrite | QIODevice::Append);
-    QTextStream stream(&tmp);
-#endif
     QString dir = joinPath(path, info.fileName());
     if (info.isDir())
     {
@@ -57,7 +58,7 @@ void FileScanner::scanDir(const QString& path, QSharedPointer<SyncRules> rules)
       //  emit signalReparsePoint(dir);
       //}
 
-      QString rulePath = joinPath(fRootDir, dir, "syncrules.xml");
+      QString rulePath = joinPath(m_RootDir, dir, "syncrules.xml");
       if (QFile::exists(rulePath))
       {
         QSharedPointer<SyncRules> loadRules(new SyncRules);
@@ -70,10 +71,11 @@ void FileScanner::scanDir(const QString& path, QSharedPointer<SyncRules> rules)
       SyncRuleFlags_e flags;
       if (rules->CheckFile(dir.toLower(), flags))
       {
-#if WRITE_DEBUG_LOG == 1
-        stream << dirStr << endl;
-#endif
-        fUnscannedDirs << DirRules(dir, rules);
+        if(m_WriteLog)
+        {
+          stream << dir << endl;
+        }
+        m_UnscannedDirs << DirRules(dir, rules);
         fDirCount++;
       }
       else
@@ -103,9 +105,11 @@ void FileScanner::scanDir(const QString& path, QSharedPointer<SyncRules> rules)
         fAllFiles[joinPath(path, fileName)] = info;
         fFileNumber++;
         fFileCount++;
-#if WRITE_DEBUG_LOG == 1
-        stream << fileStr << " " << fileinfo.size() / 1024 << " Kb" << endl;
-#endif
+        if(m_WriteLog)
+        {
+          stream << fileName << " " << fileinfo.size() / 1024 << " Kb" << endl;
+        }
+
       }
       else
       {
@@ -113,4 +117,37 @@ void FileScanner::scanDir(const QString& path, QSharedPointer<SyncRules> rules)
       }
     }
   }
+}
+
+NewFileScanner::NewFileScanner(const QString& rootPathDirRules, ProcessFile fileProcesser)
+  : m_FileProcessor(fileProcesser)
+  , m_WriteLog(true)
+{
+
+}
+
+void NewFileScanner::ScanDir(const QString& path)
+{
+  QDir searchDir(path);
+
+  QFileInfoList fileList = searchDir.entryInfoList(QDir::AllEntries | QDir::NoDotAndDotDot);
+  for (auto info : fileList)
+  {
+    QString entryName = info.absolutePath();
+    if (info.isDir())
+    {
+      if (m_FileProcessor(entryName))
+      {
+        ScanDir(entryName);
+      }
+    }
+    else
+    {
+      if (m_FileProcessor(entryName))
+      {
+        SignalFile(entryName);
+      }
+    }
+  }
+
 }

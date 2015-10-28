@@ -39,6 +39,7 @@
 #include <QtCore/QXmlStreamWriter>
 #include <QtCore/QtGlobal>
 #include <QtCore/QSharedPointer>
+#include <QtCore/QCommandLineParser>
 #include <QtXml/QXmlSimpleReader>
 #include <QtXml/QXmlInputSource>
 #include <QtXml/QDomDocument>

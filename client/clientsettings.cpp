@@ -22,8 +22,8 @@ ClientSettings::ClientSettings(QSharedPointer<SyncRules> syncRules) :
   setupUi( this );
   readWindowsSettings();
 
-#ifdef _MSC_VER
-  QString cBuild = QString("Build: %1 %2").arg(__DATE__).arg(__TIME__);
+#ifdef WINDOWS
+  QString cBuild = QString("Build: "__DATE__" " __TIME__);
   labelBuild->setText(cBuild);
 #endif
 

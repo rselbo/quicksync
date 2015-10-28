@@ -1,12 +1,11 @@
 #include "PreCompile.h"
 #include "exceptionhandler.h"
+#include "utils.h"
 #if defined( WINDOWS )
 #include "windows.h"
 #include <ErrorRep.h>
 #include <DbgHelp.h>
 #include <shlobj.h>
-#endif
-#include "utils.h"
 
 namespace ExceptionHandler
 {
@@ -95,3 +94,9 @@ LONG WINAPI ExceptionHandler::process( PEXCEPTION_POINTERS pInfo )
   QMessageBox::warning(NULL, "Crash 3", QString("Ooops, it looks like quicksync crashed, but we managed to write a minidump file at \"%1\". Please tell the coder in charge about this").arg(cDumpName));
   exit( EXIT_SUCCESS );
 }
+#else
+
+bool ExceptionHandler::registerExceptionHandler() { return false; }
+void ExceptionHandler::unRegisterExceptionHandler() {}
+#endif
+

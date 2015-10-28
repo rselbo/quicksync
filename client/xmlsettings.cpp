@@ -79,8 +79,8 @@ bool XMLSettings::Open(const QString& filepath)
   }
 
   m_RootNode = new ConfigNode(doc.documentElement().tagName());
-  for (auto child : doc.documentElement().childNodes())
-  { }
+  //for (auto child : doc.documentElement().childNodes())
+  //{ }
 
 
   return true;

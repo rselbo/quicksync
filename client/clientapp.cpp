@@ -34,14 +34,7 @@ ClientApp::ClientApp( int argc, char **argv ) : QApplication( argc, argv ), m_Wi
       qDebug() << "[ClientApp.Init] Found argument telling us to do a update on the selected branch at startup";
     }
   }
-  QSettings settings;
-  // Patcher is disabled
-  //bool usePatcher = settings.value("patcher/usepatcher", false).toBool();
-  //if(usePatcher)
-  //{
-  //  Patcher patcher;
-  //  patcher.exec();
-  //}
+
   m_Window = new ClientWindow(cBranch, bInitialUpdate, bShutdownAfterUpdate);
   m_Window->show();
 }
@@ -55,38 +48,31 @@ ClientApp::~ClientApp()
 
 int main( int argc, char **argv )
 {
-  QCoreApplication::setOrganizationName( "jesperhansen" );
-  QCoreApplication::setOrganizationDomain( "jesperhansen.net" );
   QCoreApplication::setApplicationName( "syncclient" );
 
   CreateLogfile();
-#ifdef WINDOWS
   ExceptionHandler::registerExceptionHandler();
-#endif
+
   ClientApp app( argc, argv );
   int nRet = app.exec(); 
-#ifdef WINDOWS
+
   ExceptionHandler::unRegisterExceptionHandler();
-#endif
+
   CloseLogfile();
   return nRet;
 }
 
-int __stdcall WinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, char* lpCmdLine, int nCmdShow)
+int __stdcall WinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, char* lpCmdLine, int /*nCmdShow*/)
 {
-  QCoreApplication::setOrganizationName( "jesperhansen" );
-  QCoreApplication::setOrganizationDomain( "jesperhansen.net" );
   QCoreApplication::setApplicationName( "syncclient" );
 
   CreateLogfile();
-#ifdef WINDOWS
   ExceptionHandler::registerExceptionHandler();
-#endif
+
   ClientApp app( 1, &lpCmdLine );
   int nRet = 0; app.exec();
-#ifdef WINDOWS
+
   ExceptionHandler::unRegisterExceptionHandler();
-#endif
   CloseLogfile();
   return nRet;
 }
