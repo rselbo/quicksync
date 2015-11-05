@@ -136,23 +136,28 @@ void CloseLogfile()
 
 QString GetDataDir()
 {
-  QString dirString;
+  static QString dirString;
+  if (dirString.isEmpty())
+  {
 #ifdef WINDOWS
-  wchar_t aBuf16[ MAX_PATH ]; 
+    PWSTR localAppDataFolder;
 
-  if (SHGetKnownFolderPath(FOLDERID_LocalAppData, 0, nullptr, reinterpret_cast<PWSTR*>( &aBuf16 )) == S_OK)
-  { 
-    dirString = QString::fromWCharArray(aBuf16);
-    dirString = dirString.replace('\\', '/') + "/quicksync/";
-    QDir dir(dirString);
-    if(!dir.exists())
+    if (SHGetKnownFolderPath(FOLDERID_LocalAppData, 0, nullptr, &localAppDataFolder) == S_OK)
     {
-      dir.mkpath(dirString);
+      dirString = QString::fromWCharArray(localAppDataFolder);
+      CoTaskMemFree(localAppDataFolder);
+
+      dirString = dirString.replace('\\', '/') + "/quicksync/";
+      QDir dir(dirString);
+      if (!dir.exists())
+      {
+        dir.mkpath(dirString);
+      }
     }
-  } 
 #else
-  dirString = QDir::homePath() + "/.quicksync";
+    dirString = QDir::homePath() + "/.quicksync";
 #endif
+  }
   return dirString;
 }
 
